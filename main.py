@@ -1,6 +1,6 @@
 """
 Program Algoritma Pencarian Terbimbing (Heuristic Search) dengan GUI
-Implementasi Greedy Best First Search dan A* Search dengan visualisasi map
+Menggunakan heuristik berdasarkan jarak antar node
 """
 
 import tkinter as tk
@@ -21,18 +21,6 @@ graph = {
     "G": {"C": 7, "F": 2}
 }
 
-# Nilai heuristik (jarak perkiraan) ke node tujuan 'G'
-# Makin kecil nilainya, makin dekat ke tujuan
-heuristic = {
-    "A": 8,
-    "B": 6,
-    "C": 5,
-    "D": 4,
-    "E": 3,
-    "F": 1,
-    "G": 0
-}
-
 # Posisi node untuk visualisasi
 node_positions = {
     "A": (0, 2),
@@ -43,6 +31,34 @@ node_positions = {
     "F": (3, 3),
     "G": (4, 2)
 }
+
+def calculate_heuristic(graph, goal):
+    """
+    Menghitung nilai heuristik berdasarkan jarak terpendek ke node tujuan
+    menggunakan algoritma Dijkstra
+    """
+    heuristic = {node: float('inf') for node in graph}
+    heuristic[goal] = 0
+    
+    # Menggunakan Dijkstra untuk menghitung jarak terpendek
+    queue = [(0, goal)]  # (distance, node)
+    visited = set()
+    
+    while queue and len(visited) < len(graph):
+        current_distance, current_node = heapq.heappop(queue)
+        
+        if current_node in visited:
+            continue
+            
+        visited.add(current_node)
+        
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+            if distance < heuristic[neighbor]:
+                heuristic[neighbor] = distance
+                heapq.heappush(queue, (distance, neighbor))
+    
+    return heuristic
 
 def greedy_best_first_search(graph, start, goal, heuristic):
     """
@@ -124,6 +140,9 @@ class HeuristicSearchApp:
         self.root.title("Algoritma Pencarian Terbimbing")
         self.root.geometry("800x600")
         
+        # Nilai heuristik awal (diinisialisasi di awal)
+        self.heuristic = {node: 0 for node in graph}
+        
         # Frame utama
         main_frame = ttk.Frame(root, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -144,6 +163,9 @@ class HeuristicSearchApp:
         goal_combo = ttk.Combobox(input_frame, textvariable=self.goal_var, values=sorted(graph.keys()), width=5)
         goal_combo.grid(row=0, column=3, padx=5, pady=5)
         goal_combo.current(6)  # Default ke G
+        
+        # Hitung heuristik awal untuk tujuan default (G)
+        self.heuristic = calculate_heuristic(graph, "G")
         
         # Tombol cari
         search_button = ttk.Button(input_frame, text="Cari Rute", command=self.search_routes)
@@ -187,7 +209,8 @@ class HeuristicSearchApp:
         # Label node
         node_labels = {}
         for node in graph:
-            node_labels[node] = f"{node} (h={heuristic[node]})"
+            node_labels[node] = f"{node} (h={self.heuristic[node]})"
+        
         nx.draw_networkx_labels(G, node_positions, labels=node_labels)
         
         # Edge dan labelnya
@@ -232,14 +255,21 @@ class HeuristicSearchApp:
             messagebox.showerror("Error", "Harap pilih node asal dan tujuan!")
             return
         
-        # Jalankan algoritma pencarian
-        greedy_path, greedy_cost = greedy_best_first_search(graph, start, goal, heuristic)
-        astar_path, astar_cost = a_star_search(graph, start, goal, heuristic)
+        # Hitung nilai heuristik berdasarkan jarak ke node tujuan
+        self.heuristic = calculate_heuristic(graph, goal)
         
-        # Tampilkan hasil
+        # Tampilkan informasi heuristik
         self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, "--- Nilai Heuristik ---\n")
+        for node in sorted(self.heuristic.keys()):
+            self.result_text.insert(tk.END, f"h({node}) = {self.heuristic[node]}\n")
+        self.result_text.insert(tk.END, "\n")
         
-        # Hasil Greedy
+        # Jalankan algoritma pencarian
+        greedy_path, greedy_cost = greedy_best_first_search(graph, start, goal, self.heuristic)
+        astar_path, astar_cost = a_star_search(graph, start, goal, self.heuristic)
+        
+        # Tampilkan hasil Greedy
         self.result_text.insert(tk.END, "--- Greedy Best First Search ---\n")
         if greedy_path:
             self.result_text.insert(tk.END, f"Jalur: {' -> '.join(greedy_path)}\n")
@@ -247,7 +277,7 @@ class HeuristicSearchApp:
         else:
             self.result_text.insert(tk.END, f"Tidak ada jalur dari {start} ke {goal}\n\n")
         
-        # Hasil A*
+        # Tampilkan hasil A*
         self.result_text.insert(tk.END, "--- A* Search ---\n")
         if astar_path:
             self.result_text.insert(tk.END, f"Jalur: {' -> '.join(astar_path)}\n")

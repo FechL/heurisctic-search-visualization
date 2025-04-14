@@ -1,6 +1,7 @@
 """
 Program Algoritma Pencarian Terbimbing (Heuristic Search) dengan GUI
 Menggunakan heuristik berdasarkan jarak antar node
+Dengan node yang diperluas dari A sampai N
 """
 
 import tkinter as tk
@@ -10,26 +11,43 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Graph berisi node dan bobot antar node
+# Graph berisi node dan bobot antar node (diperluas dari A sampai N)
 graph = {
-    "A": {"B": 2, "C": 3},
-    "B": {"A": 2, "D": 4, "E": 5},
-    "C": {"A": 3, "E": 1, "G": 7},
-    "D": {"B": 4, "F": 6},
-    "E": {"B": 5, "C": 1, "F": 2},
-    "F": {"D": 6, "E": 2, "G": 2},
-    "G": {"C": 7, "F": 2}
+    "A": {"B": 3, "C": 5, "D": 4},
+    "B": {"A": 3, "E": 2, "F": 6},
+    "C": {"A": 5, "G": 4, "H": 7},
+    "D": {"A": 4, "I": 3, "J": 8},
+    "E": {"B": 2, "K": 5, "F": 3},
+    "F": {"B": 6, "E": 3, "G": 2},
+    "G": {"C": 4, "F": 2, "L": 4},
+    "H": {"C": 7, "L": 3, "M": 6},
+    "I": {"D": 3, "J": 2, "N": 5},
+    "J": {"D": 8, "I": 2, "K": 4},
+    "K": {"E": 5, "J": 4, "L": 3},
+    "L": {"G": 4, "H": 3, "K": 3, "M": 2},
+    "M": {"H": 6, "L": 2, "N": 7},
+    "N": {"I": 5, "M": 7}
 }
 
-# Posisi node untuk visualisasi
+# Posisi node untuk visualisasi (dalam layout grid)
 node_positions = {
-    "A": (0, 2),
-    "B": (1, 3),
-    "C": (1, 1),
-    "D": (2, 4),
-    "E": (2, 2),
-    "F": (3, 3),
-    "G": (4, 2)
+    "A": (0, 4),    # Baris 1
+    "B": (2, 6),
+    "C": (3, 3),
+    "D": (1, 1),
+    
+    "E": (4, 7),    # Baris 2
+    "F": (5, 5),
+    "G": (6, 3),
+    "H": (5, 1),
+    "I": (3, 0),
+    
+    "J": (6, 1),    # Baris 3
+    "K": (7, 4),
+    "L": (8, 2),
+    
+    "M": (9, 3),    # Baris 4
+    "N": (8, 0)
 }
 
 def calculate_heuristic(graph, goal):
@@ -138,7 +156,7 @@ class HeuristicSearchApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Algoritma Pencarian Terbimbing")
-        self.root.geometry("800x600")
+        self.root.geometry("900x700")  # Ukuran window diperbesar untuk menampung lebih banyak node
         
         # Nilai heuristik awal (diinisialisasi di awal)
         self.heuristic = {node: 0 for node in graph}
@@ -149,23 +167,23 @@ class HeuristicSearchApp:
         
         # Frame untuk input
         input_frame = ttk.LabelFrame(main_frame, text="Input", padding=10)
-        input_frame.pack(fill=tk.X, pady=10)
+        input_frame.pack(fill=tk.X, pady=5)
         
         # Node asal dan tujuan
         ttk.Label(input_frame, text="Node Asal:").grid(row=0, column=0, padx=5, pady=5)
         self.start_var = tk.StringVar()
         start_combo = ttk.Combobox(input_frame, textvariable=self.start_var, values=sorted(graph.keys()), width=5)
         start_combo.grid(row=0, column=1, padx=5, pady=5)
-        start_combo.current(0)
+        start_combo.current(0)  # Default ke A
         
         ttk.Label(input_frame, text="Node Tujuan:").grid(row=0, column=2, padx=5, pady=5)
         self.goal_var = tk.StringVar()
         goal_combo = ttk.Combobox(input_frame, textvariable=self.goal_var, values=sorted(graph.keys()), width=5)
         goal_combo.grid(row=0, column=3, padx=5, pady=5)
-        goal_combo.current(6)  # Default ke G
+        goal_combo.current(13)  # Default ke N
         
-        # Hitung heuristik awal untuk tujuan default (G)
-        self.heuristic = calculate_heuristic(graph, "G")
+        # Hitung heuristik awal untuk tujuan default (N)
+        self.heuristic = calculate_heuristic(graph, "N")
         
         # Tombol cari
         search_button = ttk.Button(input_frame, text="Cari Rute", command=self.search_routes)
@@ -173,15 +191,20 @@ class HeuristicSearchApp:
         
         # Frame untuk visualisasi graf
         self.graph_frame = ttk.LabelFrame(main_frame, text="Visualisasi Graf", padding=10)
-        self.graph_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        self.graph_frame.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        # Frame untuk hasil
+        # Frame untuk hasil - DIUBAH: sekarang di bawah graph_frame
         self.result_frame = ttk.LabelFrame(main_frame, text="Hasil Pencarian", padding=10)
-        self.result_frame.pack(fill=tk.X, pady=10)
+        self.result_frame.pack(fill=tk.BOTH, expand=True, pady=5)
         
         # Text widget untuk menampilkan hasil
         self.result_text = tk.Text(self.result_frame, height=10, wrap=tk.WORD)
         self.result_text.pack(fill=tk.BOTH, expand=True)
+        
+        # Scrollbar untuk text hasil
+        scrollbar = ttk.Scrollbar(self.result_text, orient="vertical", command=self.result_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.result_text.configure(yscrollcommand=scrollbar.set)
         
         # Tampilkan graf awal
         self.draw_graph()
@@ -190,63 +213,61 @@ class HeuristicSearchApp:
         # Bersihkan frame graf
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
-        
+
         # Buat graf menggunakan networkx
         G = nx.Graph()
-        
-        # Tambahkan node dan edge
         for node in graph:
             G.add_node(node)
             for neighbor, weight in graph[node].items():
                 G.add_edge(node, neighbor, weight=weight)
-        
+
+        # --- Gunakan layout otomatis (contoh: spring layout)
+        layout = nx.spring_layout(G, seed=42)  # seed biar bentuknya stabil
+        # layout = nx.circular_layout(G)       # Coba ini untuk layout lingkaran
+        # layout = nx.kamada_kawai_layout(G)   # Alternatif estetik lainnya
+
         # Buat figure matplotlib
-        fig, ax = plt.subplots(figsize=(6, 4))
-        
+        fig, ax = plt.subplots(figsize=(8, 5))  # Ukuran gambar dikurangi sedikit
+
         # Gambar node dan edge
-        nx.draw_networkx_nodes(G, node_positions, node_color='lightblue', node_size=500)
-        
-        # Label node
-        node_labels = {}
-        for node in graph:
-            node_labels[node] = f"{node} (h={self.heuristic[node]})"
-        
-        nx.draw_networkx_labels(G, node_positions, labels=node_labels)
-        
-        # Edge dan labelnya
+        nx.draw_networkx_nodes(G, layout, node_color='lightblue', node_size=500)
+
+        node_labels = {node: f"{node} (h={self.heuristic[node]})" for node in graph}
+        nx.draw_networkx_labels(G, layout, labels=node_labels)
+
         edge_labels = {(u, v): d['weight'] for u, v, d in G.edges(data=True)}
-        nx.draw_networkx_edges(G, node_positions)
-        nx.draw_networkx_edge_labels(G, node_positions, edge_labels=edge_labels)
-        
-        # Gambar jalur Greedy jika ada
+        nx.draw_networkx_edges(G, layout)
+        nx.draw_networkx_edge_labels(G, layout, edge_labels=edge_labels, font_size=8)
+
+        # Jalur Greedy
         if greedy_path and len(greedy_path) > 1:
             greedy_edges = [(greedy_path[i], greedy_path[i+1]) for i in range(len(greedy_path)-1)]
-            nx.draw_networkx_edges(G, node_positions, edgelist=greedy_edges, 
-                                   width=3, edge_color='green', alpha=0.6)
-        
-        # Gambar jalur A* jika ada
+            nx.draw_networkx_edges(G, layout, edgelist=greedy_edges,
+                                width=3, edge_color='green', alpha=0.6)
+
+        # Jalur A*
         if astar_path and len(astar_path) > 1:
             astar_edges = [(astar_path[i], astar_path[i+1]) for i in range(len(astar_path)-1)]
-            nx.draw_networkx_edges(G, node_positions, edgelist=astar_edges, 
-                                   width=3, edge_color='red', alpha=0.6)
-        
+            nx.draw_networkx_edges(G, layout, edgelist=astar_edges,
+                                width=3, edge_color='red', alpha=0.6)
+
         # Legend
-        if greedy_path or astar_path:
-            legend_elements = []
-            if greedy_path:
-                legend_elements.append(plt.Line2D([0], [0], color='green', lw=3, alpha=0.6, label='Greedy Path'))
-            if astar_path:
-                legend_elements.append(plt.Line2D([0], [0], color='red', lw=3, alpha=0.6, label='A* Path'))
+        legend_elements = []
+        if greedy_path:
+            legend_elements.append(plt.Line2D([0], [0], color='green', lw=3, alpha=0.6, label='Greedy Path'))
+        if astar_path:
+            legend_elements.append(plt.Line2D([0], [0], color='red', lw=3, alpha=0.6, label='A* Path'))
+        if legend_elements:
             ax.legend(handles=legend_elements, loc='upper right')
-        
-        ax.set_title("Graf dengan Bobot dan Nilai Heuristik")
+
+        ax.set_title("Graf dengan Layout Melengkung dan Nilai Heuristik")
         plt.axis('off')
-        
-        # Tampilkan dalam Tkinter
+        plt.tight_layout()  # Memastikan layout gambar rapi
+
         canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-    
+
     def search_routes(self):
         start = self.start_var.get()
         goal = self.goal_var.get()

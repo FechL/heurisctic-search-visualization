@@ -14,7 +14,7 @@ Aplikasi ini menggunakan `Tkinter` untuk GUI, `NetworkX` untuk struktur graf, da
 - Perbandingan hasil pencarian antara algoritma Greedy dan A*.
 - Tampilan rute pencarian langsung di graf.
 
-## truktur Graf
+## Struktur Graf
 
 Graf yang digunakan bersifat statis dan didefinisikan dalam bentuk dictionary Python seperti ini:
 

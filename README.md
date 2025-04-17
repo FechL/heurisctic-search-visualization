@@ -1,22 +1,22 @@
 # Heuristic Search GUI with Tkinter
 
-Program ini adalah aplikasi Python dengan antarmuka grafis (GUI) yang mendemonstrasikan dua algoritma pencarian berbasis heuristik, yaitu:
+This program is a Python application with a graphical user interface (GUI) that demonstrates two heuristic-based search algorithms:
 
-- **Greedy Best First Search**
-- **A* Search**
+- Greedy Best First Search
+- A* Search
 
-Aplikasi ini menggunakan `Tkinter` untuk GUI, `NetworkX` untuk struktur graf, dan `Matplotlib` untuk visualisasi graf.
+The application uses `Tkinter` for the GUI, `NetworkX` for graph structure, and `Matplotlib` for graph visualization.
 
-## Fitur
+## Features
 
-- Visualisasi graf interaktif lengkap dengan bobot dan nilai heuristik tiap node.
-- Penghitungan nilai heuristik otomatis menggunakan algoritma Dijkstra.
-- Perbandingan hasil pencarian antara algoritma Greedy dan A*.
-- Tampilan rute pencarian langsung di graf.
+- Interactive graph visualization with edge weights and heuristic values for each node.
+- Automatic heuristic value calculation using Dijkstra's algorithm.
+- Search result comparison between Greedy and A* algorithms.
+- Direct visualization of the search path on the graph.
 
-## Struktur Graf
+## Graph Structure
 
-Graf yang digunakan bersifat statis dan didefinisikan dalam bentuk dictionary Python seperti ini:
+The graph is static and defined as a Python dictionary like this:
 
 ```python
 graph = {
@@ -26,7 +26,7 @@ graph = {
 }
 ```
 
-Posisi node untuk visualisasi ditentukan manual menggunakan koordinat:
+Node positions for visualization are manually set using coordinates:
 
 ```python
 node_positions = {
@@ -36,52 +36,49 @@ node_positions = {
 }
 ```
 
-## Cara Menjalankan
+## How to Run
 
-1. Pastikan Python sudah terinstal (direkomendasikan Python 3.8+).
-2. Instal dependensi yang dibutuhkan:
+1. Make sure Python is installed (Python 3.8+ recommended).
+2. Install the required dependencies:
 
 ```bash
 pip install matplotlib networkx
 ```
 
-3. Jalankan program:
+3. Run the program (main.py):
 
 ```bash
-python nama_file.py
+python main.py
 ```
 
-## Algoritma yang Digunakan
+## Algorithms Used
 
 ### Greedy Best First Search
-- Memilih node dengan nilai heuristik terendah.
-- Tidak memperhatikan total cost (biaya perjalanan sejauh ini).
+- Selects the node with the lowest heuristic value.
+- Ignores the total travel cost (`g(n)`).
 
 ### A* Search
-- Menggunakan formula: `f(n) = g(n) + h(n)`
-    - `g(n)` = total cost sejauh ini
-    - `h(n)` = heuristik ke tujuan
-- Menggabungkan strategi eksplorasi dan eksploitatif.
+- Uses the formula: `f(n) = g(n) + h(n)`
+  > `g(n)` = total cost so far, `h(n)` = estimated cost to the goal (heuristic)
+- Balances between exploration and exploitation.
 
-## Tampilan
+## Interface Preview
 
 ![demo](/assets/demo.png)
 
-Antarmuka program menampilkan:
-- Dropdown untuk memilih node awal dan tujuan
-- Tombol "Cari Rute" untuk menjalankan algoritma
-- Visualisasi graf dengan warna:
-    - 🔴 A* Path
-    - 🟢 Greedy Path
-- Informasi heuristik dan hasil jalur di bawah graf
+The interface displays:
+- Dropdown menus to select the start and goal nodes
+- A "Search Route" button to run the algorithms
+- Graph visualization with color-coded paths: 🔴 A* Path, 🟢 Greedy Path
+- Heuristic values and path results shown below the graph
 
-## Dependensi
+## Dependencies
 
-- `tkinter` (bawaan Python)
+- `tkinter` (built-in with Python)
 - `networkx`
 - `matplotlib`
-- `heapq` (bawaan Python)
+- `heapq` (built-in with Python)
 
-## Lisensi
+## License
 
-Proyek ini bebas digunakan untuk keperluan pembelajaran dan penelitian.
+This project is free to use for educational and research purposes.
